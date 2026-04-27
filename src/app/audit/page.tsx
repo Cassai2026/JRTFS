@@ -1,7 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { AuditLedgerView } from "@/components/audit/AuditLedgerView";
+﻿import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 async function getAuditData() {
   const [entries, disbursements] = await Promise.all([
@@ -10,42 +8,36 @@ async function getAuditData() {
         case: { select: { caseNumber: true, deceasedName: true } },
         user: { select: { name: true, email: true } },
       },
-      orderBy: { timestamp: "desc" },
-      take: 100,
+      orderBy: { createdAt: 'desc' },
     }),
     prisma.disbursement.findMany({
       include: {
         case: { select: { caseNumber: true, deceasedName: true } },
       },
-      orderBy: { createdAt: "desc" },
-    }),
+      orderBy: { createdAt: 'desc' },
+    })
   ]);
   return { entries, disbursements };
 }
 
 export default async function AuditPage() {
-  const session = await getServerSession(authOptions);
-  const userRole = (session?.user as any)?.role;
-
-  if (userRole !== "ADMIN" && userRole !== "DIRECTOR") {
-    return (
-      <div className="text-center py-16">
-        <p className="text-red-400">Access denied. Director or Admin role required.</p>
-      </div>
-    );
-  }
-
-  const { entries, disbursements } = await getAuditData();
-
+  const data = await getAuditData();
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Sovereign Audit Ledger</h1>
-        <p className="text-gray-400 mt-1">
-          Immutable record of all transactions and system events. Zero hidden markups.
-        </p>
+    <div className="p-8 bg-black min-h-screen text-white">
+      <h1 className="text-3xl font-bold mb-8 tracking-tighter">FINANCIAL AUDIT</h1>
+      <div className="grid gap-4">
+        {data.entries.map((item: any) => (
+          <div key={item.id} className="border border-zinc-800 bg-zinc-950 p-4 rounded-md">
+            <div className="flex justify-between">
+              <span className="font-bold">{item.action}</span>
+              <span>{item.amount ? '£' + item.amount : ''}</span>
+            </div>
+            <p className="text-zinc-500 text-sm mt-1">
+              Case: {item.case?.deceasedName} | User: {item.user?.name}
+            </p>
+          </div>
+        ))}
       </div>
-      <AuditLedgerView entries={entries as any} disbursements={disbursements as any} />
     </div>
   );
 }

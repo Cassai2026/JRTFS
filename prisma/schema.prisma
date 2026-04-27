@@ -3,118 +3,64 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  DIRECTOR
+  STAFF
 }
 
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   name          String?
-  passwordHash  String
-  role          String   @default("STAFF")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  cases         Case[]   @relation("AssignedDirector")
-  auditEntries  AuditLedger[]
+  passwordHash  String?
+  role          UserRole @default(DIRECTOR)
+  cases         Case[]
+  auditEntries  auditLedger[]
 }
 
 model Case {
-  id                String      @id @default(cuid())
-  caseNumber        String      @unique
-  deceasedName      String
-  deceasedDob       DateTime?
-  deceasedDod       DateTime
-  stage             String      @default("INTAKE")
-  intakeAt          DateTime    @default(now())
-  preparationAt     DateTime?
-  serviceAt         DateTime?
-  completedAt       DateTime?
-  directorId        String?
-  director          User?       @relation("AssignedDirector", fields: [directorId], references: [id])
-  familySessions    FamilyPortalSession[]
-  disbursements     Disbursement[]
-  auditEntries      AuditLedger[]
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  stageHistory      StageHistory[]
+  id                   String         @id @default(cuid())
+  caseNumber           String         @unique @default(cuid())
+  deceasedName         String
+  deceasedFirstName    String?
+  deceasedLastName     String?
+  dateOfBirth          DateTime?
+  dateOfDeath          DateTime       @default(now())
+  locationOfTransition String?
+  locationOfDeath      String?
+  stage                String         @default("FIRST_CALL")
+  status               String         @default("FIRST_CALL")
+  
+  directorId           String
+  director             User           @relation(fields: [directorId], references: [id])
+  
+  disbursements        disbursement[]
+  auditEntries         auditLedger[]
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 }
 
-model StageHistory {
-  id        String     @id @default(cuid())
-  caseId    String
-  case      Case       @relation(fields: [caseId], references: [id])
-  stage     String
-  timestamp DateTime   @default(now())
-  changedBy String?
-  notes     String?
-}
-
-model FamilyPortalSession {
-  id                  String    @id @default(cuid())
-  caseId              String
-  case                Case      @relation(fields: [caseId], references: [id])
-  familyName          String
-  familyEmailEncrypted String
-  accessToken         String    @unique
-  selectedServices    String    @default("[]")
-  documentsUploaded   String    @default("[]")
-  consentGiven        Boolean   @default(false)
-  fcaStatementSigned  Boolean   @default(false)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-}
-
-model ServiceCatalog {
+model disbursement {
   id          String   @id @default(cuid())
   name        String
-  description String
-  basePrice   Float
-  category    String
-  isActive    Boolean  @default(true)
+  amount      Float
+  caseId      String
+  case        Case     @relation(fields: [caseId], references: [id])
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
-model Disbursement {
-  id              String    @id @default(cuid())
-  caseId          String
-  case            Case      @relation(fields: [caseId], references: [id])
-  vendor          String
-  description     String
-  amount          Float
-  actualCost      Float
-  markup          Float     @default(0)
-  status          String    @default("PENDING")
-  receiptRef      String?
-  verifiedAt      DateTime?
-  verifiedBy      String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  auditEntries    AuditLedger[]
-}
-
-model AuditLedger {
-  id          String   @id @default(cuid())
-  caseId      String?
-  case        Case?    @relation(fields: [caseId], references: [id])
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id])
-  disbursementId String?
-  disbursement   Disbursement? @relation(fields: [disbursementId], references: [id])
-  action      String
-  details     String
-  ipAddress   String?
-  timestamp   DateTime @default(now())
-}
-
-model ComplianceStatement {
-  id              String   @id @default(cuid())
-  type            String
-  version         String
-  content         String
-  isActive        Boolean  @default(true)
-  effectiveDate   DateTime
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model auditLedger {
+  id        String   @id @default(cuid())
+  action    String
+  amount    Float?
+  caseId    String?
+  case      Case?    @relation(fields: [caseId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
