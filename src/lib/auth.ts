@@ -15,14 +15,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        // This check fixes the "possibly null" error
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
         if (!user || !user.passwordHash) return null;
-
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
@@ -35,6 +29,17 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+  callbacks: {
+    // This part is the fix: It pushes the role into the session so the website can see it
+    async jwt({ token, user }) {
+      if (user) token.role = (user as any).role;
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) (session.user as any).role = token.role;
+      return session;
+    }
+  },
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/login" }
 };
