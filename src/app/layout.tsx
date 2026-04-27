@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Sovereign Funeral SaaS | SFS",
-  description: "Eliminating administrative sloth for funeral directors and financial rinse for grieving families.",
+  description: "Reducing administrative burden for funeral directors and hidden costs for grieving families.",
 };
 
 export default function RootLayout({

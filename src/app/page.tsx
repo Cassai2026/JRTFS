@@ -12,7 +12,7 @@ export default function Home() {
             Sovereign Funeral SaaS
           </h1>
           <p className="text-xl text-gray-300 mb-2">
-            Eliminating Administrative Sloth. Ending Financial Rinse.
+            Reducing Administrative Burden. Ending Hidden Charges.
           </p>
           <p className="text-gray-400 max-w-2xl mx-auto">
             A transparent, secure, and dignified platform for funeral directors and grieving families.
@@ -63,7 +63,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-blue-400">🔒</div>
-              <div className="text-xs text-gray-500 mt-1">Zero-Extraction</div>
+              <div className="text-xs text-gray-500 mt-1">Data Protection</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-400">✓</div>
@@ -71,7 +71,7 @@ export default function Home() {
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-400">⚡</div>
-              <div className="text-xs text-gray-500 mt-1">Sovereign Shield</div>
+              <div className="text-xs text-gray-500 mt-1">Access Control</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-400">📊</div>

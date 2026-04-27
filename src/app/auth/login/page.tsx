@@ -82,7 +82,7 @@ export default function LoginPage() {
 
         <div className="mt-6 pt-6 border-t border-gray-800">
           <p className="text-xs text-gray-500 text-center">
-            🔒 Protected by Sovereign Shield | Zero-Extraction Policy Active
+            🔒 Secured by Role-Based Access Control | Data Protection Policy Active
           </p>
         </div>
 
